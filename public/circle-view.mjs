@@ -108,7 +108,7 @@ function weeklyRace(details, members, boardToday, userId, rivalId, offline, ui) 
   // Team rhythm measures check-ins rather than leaderboard points, so rest days count too.
   const boardIndex = days.indexOf(boardToday);
   const attended = members.filter(member => {
-    const mark = member.weekMarks?.[boardIndex] ?? fallbackMark(member, boardToday, boardToday, details.activity);
+    const mark = member.weekMarks?.[boardIndex] ?? fallbackMark(member, boardToday, boardToday, activity);
     return ['gym', 'nutrition', 'both', 'rest'].includes(mark);
   }).length;
   const sharedProgress = '<section class="circle-together" aria-label="Friend circle check-in progress">'
