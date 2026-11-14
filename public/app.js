@@ -534,10 +534,12 @@ function showLockMoment(checkin, streak, award) {
   const both = Boolean(checkin.gym && checkin.nutrition);
   const rest = !checkin.gym && !checkin.nutrition;
   const iconText = award?.icon || (both ? '⚡' : rest ? '🌿' : checkin.gym ? '💪' : '🥗');
-  const headline = award ? 'Award unlocked: ' + award.name : both ? 'Double mark!' : rest ? 'Recovery counts!' : 'Day secured!';
-  const detail = award ? award.description : streak > 1 ? streak + ' consecutive check-ins. Keep your rhythm.'
-    : both ? 'Gym and nutrition, both on the board.' : rest ? 'You showed up and protected your rest.' : 'Your mark is on the board.';
-  const tier = award ? 'award' : rest ? 'rest' : both ? 'double' : 'single';
+  const headline = award ? (both ? 'Double mark + award!' : 'Award unlocked!') : both ? 'Double mark locked!' : rest ? 'Recovery day secured!'
+    : checkin.gym ? 'Gym day secured!' : 'Nutrition day secured!';
+  const detail = award ? award.name + ' · ' + award.description : streak > 1 ? streak + ' consecutive check-ins. Keep your rhythm.'
+    : both ? 'Two marks on the board. Excellent consistency!' : rest ? 'You protected your recovery and checked in.' 
+      : checkin.gym ? 'Training counts. Show up again when you are ready.' : 'Your food routine has another mark.';
+  const tier = award ? 'award' : rest ? 'rest' : both ? 'double' : checkin.gym ? 'gym' : 'nutrition';
   el.dataset.tier = tier;
   el.setAttribute('aria-label', headline + '. ' + detail);
   el.querySelector('.mark-moment-symbol').textContent = iconText;
