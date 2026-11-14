@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daymark-shell-v4';
+const CACHE_VERSION = 'daymark-shell-v5';
 const scope = self.registration.scope;
 const CACHE_PREFIX = `daymark-shell:${scope}:`;
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
