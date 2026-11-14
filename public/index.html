@@ -107,6 +107,15 @@
   <dialog id="app-dialog" class="dialog" aria-labelledby="dialog-title">
     <div id="dialog-content" class="dialog-content"></div>
   </dialog>
+  <div id="tap-moment" class="tap-moment" role="status" hidden></div>
+  <div id="mark-moment" class="mark-moment" role="status" aria-atomic="true" hidden>
+    <div class="mark-moment-card">
+      <span class="mark-moment-symbol" aria-hidden="true">✦</span>
+      <strong class="mark-moment-title">Day secured!</strong>
+      <span class="mark-moment-detail">Your mark is on the board.</span>
+    </div>
+    <div class="mark-moment-particles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
   <div id="toast" class="toast" role="status" aria-atomic="true"></div>
   <script type="module" src="./app.js"></script>
 </body>
