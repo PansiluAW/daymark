@@ -436,3 +436,17 @@ button.heatmap-cell:hover { border-color: #456538; box-shadow: 0 0 0 1px #456538
  .mark-moment .mark-moment-title { animation:none!important }
  .stamp-burst, .mark-moment-particles, .mark-moment .mark-moment-card::before { display:none!important }
 }
+
+.mark-moment-streak{display:inline-flex;align-items:center;justify-content:center;padding:7px 14px;margin-top:5px;background:#fff0bd;border:1px solid #ebc96f;border-radius:100px;font-weight:800;color:#7b4414;font-size:13px;animation:daymark-streak-rise .65s .25s both}
+.mark-moment-streak[hidden]{display:none!important}
+@keyframes daymark-streak-rise{from{opacity:0;transform:translateY(12px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.mark-moment-streak{animation:none!important}}
+
+/* A circle-wide momentum meter encourages the entire friend group, including recovery days. */
+.circle-together{margin:11px 0 16px;padding:11px 13px;border:1px solid #d4e5bf;border-radius:13px;background:linear-gradient(110deg,#f7fbef,#edf6e4)}
+.circle-together-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;color:#35512a;font-size:12px;font-weight:760}
+.circle-together-heading strong{font-size:12px}
+.circle-together-track{height:8px;margin:10px 0 8px;border-radius:100px;background:#d9e7ca;overflow:hidden}
+.circle-together-track>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#90bd60,#d2ec57);transition:width .65s cubic-bezier(.2,.8,.2,1)}
+.circle-together small{display:block;color:#63745a;font-size:10px;line-height:1.4}
+@media(prefers-reduced-motion:reduce){.circle-together-track>span{transition:none}}
