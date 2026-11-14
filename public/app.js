@@ -1,4 +1,4 @@
-import { habits, dayInZone, offsetDay, mondayOf, formatDay, hasCheckin, checkinLevel, summarize, weekBoard, makeDemo } from './model.mjs';
+import { habits, dayInZone, offsetDay, mondayOf, formatDay, hasCheckin, checkinLevel, summarize, weekBoard, makeDemo, awardsFor } from './model.mjs';
 import { circleView } from './circle-view.mjs';
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -253,6 +253,7 @@ async function lockDay(day, draft) {
   if (dayLocked(day)) { closeDialog(); return; }
   if (navigator.onLine === false && !state.demo) throw new Error('Reconnect today to lock your check-in.');
   const userId = state.data.user.id;
+  const beforeAwards = new Set(awardsFor(state.data.checkins, day).filter(a => a.earnedOn).map(a => a.id));
   state.locking = true;
   try {
     const { checkin } = state.demo ? { checkin: draft }
@@ -269,7 +270,8 @@ async function lockDay(day, draft) {
     render();
     $('#daily-title')?.focus({ preventScroll: true });
     const streak = summarize(state.data.checkins, day).checkinStreak;
-    toast(streak > 1 ? streak + ' days checked in. Day locked!' : 'Day locked.');
+    const award = awardsFor(state.data.checkins, day).find(a => a.earnedOn === day && !beforeAwards.has(a.id));
+    showLockMoment(checkin, streak, award);
     if (getView() === 'circle') void loadCircle();
   } catch (error) {
     if (error.status === 401 || error.status === 409) {
@@ -509,6 +511,61 @@ function heatmap(today, logs, weeks, filter = 'all') {
     + '<div class="heatmap-grid" aria-label="Daily consistency grid">' + tiles.join('') + '</div></div></div></div><div class="heatmap-legend">' + legend + '</div>';
 }
 
+
+/** Personal awards come from saved check-ins, never from local drafts or mock circle scores. */
+function renderAwards(today, logs) {
+  const badges = awardsFor(logs, today);
+  const earned = badges.filter(b => b.earnedOn).length;
+  const tiles = badges.map(a =>
+    '<li class="award-tile' + (a.earnedOn ? ' award-earned' : '') + '">'
+    + '<span class="award-glyph" aria-hidden="true">' + a.icon + '</span>'
+    + '<span class="award-copy"><strong>' + escape(a.name) + '</strong><small>'
+    + escape(a.earnedOn ? 'Earned ' + formatDay(a.earnedOn) : a.description) + '</small></span></li>'
+  ).join('');
+  return panel('<div class="panel-heading"><div><p class="eyebrow">YOUR ACHIEVEMENTS</p><h2>Awards cabinet</h2>'
+    + '<p>Each locked day is a win. Rest days count toward showing up; gym and nutrition awards need actual marks.</p>'
+    + '</div><span class="award-total">' + earned + ' / ' + badges.length + '</span></div>'
+    + '<ul class="award-grid">' + tiles + '</ul>', 'awards-panel');
+}
+let markMomentTimer;
+function showLockMoment(checkin, streak, award) {
+  const el = $('#mark-moment');
+  if (!el) { toast('Day locked.'); return; }
+  const both = Boolean(checkin.gym && checkin.nutrition);
+  const rest = !checkin.gym && !checkin.nutrition;
+  const iconText = award?.icon || (both ? '⚡' : rest ? '🌿' : checkin.gym ? '💪' : '🥗');
+  const headline = award ? 'Award unlocked: ' + award.name : both ? 'Double mark!' : rest ? 'Recovery counts!' : 'Day secured!';
+  const detail = award ? award.description : streak > 1 ? streak + ' consecutive check-ins. Keep your rhythm.'
+    : both ? 'Gym and nutrition, both on the board.' : rest ? 'You showed up and protected your rest.' : 'Your mark is on the board.';
+  el.querySelector('.mark-moment-symbol').textContent = iconText;
+  el.querySelector('.mark-moment-title').textContent = headline;
+  el.querySelector('.mark-moment-detail').textContent = detail;
+  clearTimeout(markMomentTimer);
+  el.hidden = false;
+  el.classList.remove('mark-moment-animate');
+  void el.offsetWidth;
+  el.classList.add('mark-moment-animate');
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches && navigator.vibrate) {
+    try { navigator.vibrate([20,40,30]); } catch {}
+  }
+  markMomentTimer = setTimeout(() => { el.hidden = true; }, 2900);
+}
+function showTapMoment(habit, marked) {
+  if (!marked) return; // Unmarking is correction, not a victory.
+  const el = $('#tap-moment');
+  if (!el) return;
+  el.textContent = (habit === 'gym' ? '💪 Gym marked' : '🥗 Nutrition marked') + ' · lock today to save';
+  el.hidden = false;
+  el.classList.remove('tap-moment-animate');
+  void el.offsetWidth;
+  el.classList.add('tap-moment-animate');
+  clearTimeout(showTapMoment.timer);
+  showTapMoment.timer = setTimeout(() => { el.hidden = true; }, 1350);
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && navigator.vibrate) {
+    try { navigator.vibrate(12); } catch {}
+  }
+}
+
 function renderHistory(today, logs, stats) {
   const filters = [['all', 'All'], ['gym', 'Gym'], ['diet', 'Nutrition']].map(([value, label]) =>
     '<button type="button" data-filter="' + value + '" aria-pressed="' + (state.filter === value) + '">' + label + '</button>').join('');
@@ -520,7 +577,8 @@ function renderHistory(today, logs, stats) {
   $('#history-content').innerHTML = '<article class="progress-card"><div class="progress-head"><div><h2>Your year in marks</h2><p>Tap a tile for details. Scroll for earlier months.</p></div>'
     + '<div class="segment" aria-label="Filter check-ins">' + filters + '</div></div>' + progressMetrics(stats)
     + heatmap(today, logs, 52, state.filter) + '</article>'
-    + panel('<div class="panel-heading"><h2>This week’s goals</h2></div><div class="goal-list">' + goals + '</div>', 'weekly-goals');
+    + panel('<div class="panel-heading"><h2>This week’s goals</h2></div><div class="goal-list">' + goals + '</div>', 'weekly-goals')
+    + renderAwards(today, logs);
 }
 
 function renderCircles(today) {
@@ -868,7 +926,11 @@ document.addEventListener('click', async (event) => {
   if (!action || !state.data) return;
   try {
     switch (action) {
-      case 'toggle': setDraft(day, { [habit]: !getDraft(day)[habit] }); break;
+      case 'toggle': {
+        const marked = !getDraft(day)[habit];
+        if (setDraft(day, { [habit]: marked })) showTapMoment(habit, marked);
+        break;
+      }
       case 'focus-checkin': {
         const firstStamp = $('.habit-stamp[data-action="toggle"]');
         firstStamp?.focus();
