@@ -8,6 +8,19 @@ From this folder, run `npm start` with Node.js 22.13 or later, then open [Daymar
 
 The first screen is an interactive sample board. Choose **Start my board** to make your own account. The sample board and your personal board are separate. To stop Daymark, press Ctrl+C in the terminal.
 
+## Celebrate every mark
+
+Daymark now gives each action a different visual reward:
+
+- **Nutrition** gets a green-gold stamp impact and a short burst of sparks.
+- **Gym** gets a stronger training stamp and energetic particle feedback.
+- **Both habits** produce a brighter Double-mark effect while you prepare to lock the day.
+- **Locking a day** plays a full completion celebration **only after the backend confirms the lock**. Rest days get a gentle green halo; a single habit gets a larger burst; Double marks get confetti/firework effects. New personal achievements add a gold-tier celebration.
+- **Streak milestones** show an animated flame accent. In **My progress**, the Awards cabinet contains 11 badges calculated from locked history, including rest-day attendance. Nothing is unlocked for drafts or failed saves.
+- **Circle momentum** shows how many friends have checked in, including those taking rest days. The competitive weekly race still counts active days only, with no extra points for resting.
+
+Effects are brief, don't obstruct further taps, and respect operating-system **Reduce Motion**. Vibration only occurs on devices/browsers that support it. No external animation trackers, scripts, sounds, or personal-data services are involved.
+
 ## Lock your day
 
 You can change today’s draft until you lock it. Locking is final, including any private note. Days close at midnight in the time zone saved when you created the account. Today shows your week and your check-in streak. A rest day keeps that streak going and opens Circle. A day with at least one habit mark counts as an active day. Past tiles in My progress are read-only.
