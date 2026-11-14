@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Daymark</title>
+  <rect width="64" height="64" rx="14" fill="#171b17"/>
+  <path fill="#d9fc63" d="M15 36l9-5v17h-9zm12-7 9-5v24h-9zm12-7 9-5v31h-9z"/>
+</svg>
