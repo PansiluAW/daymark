@@ -572,12 +572,17 @@ function showLockMoment(checkin, streak, award) {
   const detail = award ? award.name + ' · ' + award.description : streak > 1 ? streak + ' consecutive check-ins. Keep your rhythm.'
     : both ? 'Two marks on the board. Excellent consistency!' : rest ? 'You protected your recovery and checked in.' 
       : checkin.gym ? 'Training counts. Show up again when you are ready.' : 'Your food routine has another mark.';
-  const tier = award ? 'award' : rest ? 'rest' : both ? 'double' : checkin.gym ? 'gym' : 'nutrition';
+  const tier = rest ? 'rest' : award ? 'award' : both ? 'double' : checkin.gym ? 'gym' : 'nutrition';
   el.dataset.tier = tier;
   el.setAttribute('aria-label', headline + '. ' + detail);
   el.querySelector('.mark-moment-symbol').textContent = iconText;
   el.querySelector('.mark-moment-title').textContent = headline;
   el.querySelector('.mark-moment-detail').textContent = detail;
+  const flame = el.querySelector('.mark-moment-streak');
+  if (flame) {
+    flame.hidden = streak < 3;
+    flame.textContent = streak >= 3 ? '🔥 ' + streak + '-day check-in streak' : '';
+  }
   clearTimeout(markMomentTimer);
   el.hidden = false;
   el.classList.remove('mark-moment-animate');
