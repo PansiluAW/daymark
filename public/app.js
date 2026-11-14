@@ -539,6 +539,7 @@ function showLockMoment(checkin, streak, award) {
     : both ? 'Gym and nutrition, both on the board.' : rest ? 'You showed up and protected your rest.' : 'Your mark is on the board.';
   const tier = award ? 'award' : rest ? 'rest' : both ? 'double' : 'single';
   el.dataset.tier = tier;
+  el.setAttribute('aria-label', headline + '. ' + detail);
   el.querySelector('.mark-moment-symbol').textContent = iconText;
   el.querySelector('.mark-moment-title').textContent = headline;
   el.querySelector('.mark-moment-detail').textContent = detail;
@@ -556,15 +557,21 @@ function showTapMoment(habit, marked) {
   if (!marked) return; // Unmarking is correction, not a victory.
   const el = $('#tap-moment');
   if (!el) return;
-  el.textContent = (habit === 'gym' ? '💪 Gym marked' : '🥗 Nutrition marked') + ' · lock today to save';
+  const gym = habit === 'gym';
+  const draft = getDraft(todayKey());
+  const double = Boolean(draft.gym && draft.nutrition);
+  el.dataset.tier = double ? 'double' : gym ? 'gym' : 'nutrition';
+  el.innerHTML = '<span class="tap-moment-icon" aria-hidden="true">' + (double ? '⚡' : gym ? '💪' : '🥗') + '</span>'
+    + '<span class="tap-moment-copy"><strong>' + (double ? 'Both habits marked!' : gym ? 'Gym effort marked!' : 'Nutrition mark secured!') + '</strong>'
+    + '<small>' + (double ? 'Double mark ready to lock' : gym ? 'Strength and consistency count' : 'Fuel your consistency') + ' · Lock to save</small></span>';
   el.hidden = false;
   el.classList.remove('tap-moment-animate');
   void el.offsetWidth;
   el.classList.add('tap-moment-animate');
   clearTimeout(showTapMoment.timer);
-  showTapMoment.timer = setTimeout(() => { el.hidden = true; }, 1350);
+  showTapMoment.timer = setTimeout(() => { el.hidden = true; }, double ? 1950 : 1550);
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches && navigator.vibrate) {
-    try { navigator.vibrate(12); } catch {}
+    try { navigator.vibrate(double ? [16,35,22] : gym ? [16,24,14] : [12]); } catch {}
   }
 }
 
