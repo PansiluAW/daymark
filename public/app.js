@@ -537,6 +537,8 @@ function showLockMoment(checkin, streak, award) {
   const headline = award ? 'Award unlocked: ' + award.name : both ? 'Double mark!' : rest ? 'Recovery counts!' : 'Day secured!';
   const detail = award ? award.description : streak > 1 ? streak + ' consecutive check-ins. Keep your rhythm.'
     : both ? 'Gym and nutrition, both on the board.' : rest ? 'You showed up and protected your rest.' : 'Your mark is on the board.';
+  const tier = award ? 'award' : rest ? 'rest' : both ? 'double' : 'single';
+  el.dataset.tier = tier;
   el.querySelector('.mark-moment-symbol').textContent = iconText;
   el.querySelector('.mark-moment-title').textContent = headline;
   el.querySelector('.mark-moment-detail').textContent = detail;
@@ -546,9 +548,9 @@ function showLockMoment(checkin, streak, award) {
   void el.offsetWidth;
   el.classList.add('mark-moment-animate');
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches && navigator.vibrate) {
-    try { navigator.vibrate([20,40,30]); } catch {}
+    try { navigator.vibrate(tier === 'award' || tier === 'double' ? [25,45,35,55,25] : tier === 'rest' ? [12] : [20,40,30]); } catch {}
   }
-  markMomentTimer = setTimeout(() => { el.hidden = true; }, 2900);
+  markMomentTimer = setTimeout(() => { el.hidden = true; }, tier === 'double' || tier === 'award' ? 3500 : tier === 'rest' ? 2200 : 2800);
 }
 function showTapMoment(habit, marked) {
   if (!marked) return; // Unmarking is correction, not a victory.
