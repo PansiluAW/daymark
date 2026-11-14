@@ -424,3 +424,15 @@ button.heatmap-cell:hover { border-color: #456538; box-shadow: 0 0 0 1px #456538
   .stamp-impact,.stamp-impact .stamp-state,.daymark-particle,.mark-moment-card::before,.mark-moment-symbol,.mark-moment-title{animation:none!important}
   .stamp-burst,.mark-moment-particles{display:none!important}
 }
+
+/* Reduced-motion wins over even the stronger confetti selectors. */
+@media (prefers-reduced-motion: reduce) {
+ .stamp-burst .daymark-particle,
+ .mark-moment-particles .daymark-particle,
+ .stamp-impact,
+ .stamp-impact .stamp-state,
+ .mark-moment .mark-moment-card,
+ .mark-moment .mark-moment-symbol,
+ .mark-moment .mark-moment-title { animation:none!important }
+ .stamp-burst, .mark-moment-particles, .mark-moment .mark-moment-card::before { display:none!important }
+}
