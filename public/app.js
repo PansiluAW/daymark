@@ -528,6 +528,39 @@ function renderAwards(today, logs) {
     + '<ul class="award-grid">' + tiles + '</ul>', 'awards-panel');
 }
 let markMomentTimer;
+let effectCleanupTimer;
+function reducedEffects() {
+  return matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+/**
+ * A burst is a deliberately short-lived visual effect: never a reward for an unsaved lock.
+ * DOM nodes are recreated only when the user takes an action, not on every app render.
+ */
+function burstParticles(container, tier, count, mode = 'lock') {
+  container.replaceChildren();
+  if (reducedEffects()) return;
+  const colors = tier === 'rest' ? ['#bddbaa','#e5f0d8']
+    : tier === 'nutrition' ? ['#bad64d','#e9fa83','#88b96a']
+    : tier === 'gym' ? ['#77caa5','#c7f269','#ffffff']
+    : ['#d9fc63','#8acf68','#ffffff','#f9d76c','#c6efa5'];
+  const fragment = document.createDocumentFragment();
+  const isTap = mode === 'tap';
+  for(let i = 0; i < count; i++){
+    const particle = document.createElement('i');
+    particle.className = 'daymark-particle '+(i % 5 === 0 ? 'is-star' : i % 3 === 0 ? 'is-spark' : 'is-confetti');
+    const angle = i * 2.399963229728653; // distributed radial layout; no repeated clumps
+    const distance = isTap ? 26 + (i % 4) * 8 : 125 + (i % 6) * 19;
+    const x = Math.cos(angle)*distance;
+    const y = Math.sin(angle)*distance*(isTap ? 0.8 : 1.05);
+    particle.style.setProperty('--particle-x',Math.round(x)+'px');
+    particle.style.setProperty('--particle-y',Math.round(y)+'px');
+    particle.style.setProperty('--particle-turn',(i % 2 ? 300 : -280)+'deg');
+    particle.style.setProperty('--particle-delay',(i%7*35)+'ms');
+    particle.style.setProperty('--particle-color',colors[i%colors.length]);
+    fragment.appendChild(particle);
+  }
+  container.appendChild(fragment);
+}
 function showLockMoment(checkin, streak, award) {
   const el = $('#mark-moment');
   if (!el) { toast('Day locked.'); return; }
@@ -550,6 +583,10 @@ function showLockMoment(checkin, streak, award) {
   el.classList.remove('mark-moment-animate');
   void el.offsetWidth;
   el.classList.add('mark-moment-animate');
+  const particleHost = el.querySelector('.mark-moment-particles');
+  if (particleHost) burstParticles(particleHost, tier, tier === 'award' ? 54 : tier === 'double' ? 44 : tier === 'rest' ? 7 : 23);
+  clearTimeout(effectCleanupTimer);
+  effectCleanupTimer = setTimeout(() => { particleHost?.replaceChildren(); }, 2200);
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches && navigator.vibrate) {
     try { navigator.vibrate(tier === 'award' || tier === 'double' ? [25,45,35,55,25] : tier === 'rest' ? [12] : [20,40,30]); } catch {}
   }
@@ -567,6 +604,25 @@ function showTapMoment(habit, marked) {
     + '<span class="tap-moment-copy"><strong>' + (double ? 'Both habits marked!' : gym ? 'Gym effort marked!' : 'Nutrition mark secured!') + '</strong>'
     + '<small>' + (double ? 'Double mark ready to lock' : gym ? 'Strength and consistency count' : 'Fuel your consistency') + ' · Lock to save</small></span>';
   el.hidden = false;
+  const stamp = document.querySelector('.habit-stamp[data-action="toggle"][data-habit="'+habit+'"]');
+  if(stamp && !reducedEffects()){
+    stamp.classList.remove('stamp-impact');
+    void stamp.offsetWidth;
+    stamp.classList.add('stamp-impact');
+    setTimeout(() => stamp.classList.remove('stamp-impact'), 680);
+    const oldBurst = document.getElementById('stamp-burst');
+    oldBurst?.remove();
+    const host = document.createElement('div');
+    host.id = 'stamp-burst';
+    host.className = 'stamp-burst';
+    host.dataset.tier = double ? 'double' : habit;
+    const rect = stamp.getBoundingClientRect();
+    host.style.left = Math.round(rect.left+rect.width/2)+'px';
+    host.style.top = Math.round(rect.top+rect.height/2)+'px';
+    document.body.appendChild(host);
+    burstParticles(host, double ? 'double' : habit, double ? 21 : habit === 'gym' ? 13 : 10, 'tap');
+    setTimeout(() => host.remove(), 950);
+  }
   el.classList.remove('tap-moment-animate');
   void el.offsetWidth;
   el.classList.add('tap-moment-animate');
