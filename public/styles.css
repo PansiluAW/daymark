@@ -368,3 +368,15 @@ button.heatmap-cell:hover { border-color: #456538; box-shadow: 0 0 0 1px #456538
 .mark-moment[data-tier="award"] .mark-moment-card{background:linear-gradient(155deg,#fffce9,#e4f4bd);border:2px solid #d3b966;box-shadow:0 30px 120px #0b1b0b99}
 .mark-moment[data-tier="award"] .mark-moment-title{color:#5a4711}
 .mark-moment[data-tier="award"] .mark-moment-symbol{font-size:79px}
+
+/* Each check-in action has its own satisfying tier. These are drafts until locked. */
+.tap-moment{display:flex;align-items:center;gap:10px;width:max-content;min-width:190px;justify-content:center;border-radius:15px;padding:10px 15px;line-height:1.2}
+.tap-moment-icon{font-size:27px;line-height:1;flex:none}
+.tap-moment-copy{display:grid;gap:3px;text-align:left}
+.tap-moment-copy strong{font-size:13px;font-weight:800}
+.tap-moment-copy small{font-size:10px;font-weight:600;line-height:1.3;opacity:.85}
+.tap-moment[data-tier="gym"]{background:#e7f5dc;border-color:#7dad70;color:#28472b;box-shadow:0 12px 28px #285a3a38}
+.tap-moment[data-tier="nutrition"]{background:#f3fbd9;border-color:#a9be59;color:#3d4e1c;box-shadow:0 12px 28px #5c721a28}
+.tap-moment[data-tier="double"]{background:linear-gradient(115deg,#f8ffd6,#e2fb96);border-color:#82a332;color:#354817;box-shadow:0 12px 30px #5b781a4b}
+.tap-moment[data-tier="double"] .tap-moment-icon{font-size:31px}
+@media(prefers-reduced-motion:reduce){.tap-moment{animation:none!important}}
