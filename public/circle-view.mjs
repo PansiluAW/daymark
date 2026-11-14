@@ -105,6 +105,18 @@ function weeklyRace(details, members, boardToday, userId, rivalId, offline, ui) 
     gap: lead - score(you),
   } : null;
   const pace = duelCard(matchup, members, raceRange(days[0], days.at(-1)), overall, ui);
+  // Team rhythm measures check-ins rather than leaderboard points, so rest days count too.
+  const boardIndex = days.indexOf(boardToday);
+  const attended = members.filter(member => {
+    const mark = member.weekMarks?.[boardIndex] ?? fallbackMark(member, boardToday, boardToday, details.activity);
+    return ['gym', 'nutrition', 'both', 'rest'].includes(mark);
+  }).length;
+  const sharedProgress = '<section class="circle-together" aria-label="Friend circle check-in progress">'
+    + '<div class="circle-together-heading"><span>✦ Circle momentum</span><strong>' + attended + ' / ' + members.length + ' checked in</strong></div>'
+    + '<div class="circle-together-track" role="progressbar" aria-label="Circle members who checked in" aria-valuemin="0" aria-valuemax="' + members.length
+    + '" aria-valuenow="' + attended + '"><span style="width:' + (members.length ? attended / members.length * 100 : 0) + '%"></span></div>'
+    + '<small>Every check-in matters, including recovery days. The race still counts active days.</small></section>';
+
   const axis = '<div class="circle-lane circle-axis" aria-hidden="true"><span>Member</span><div class="circle-week">'
     + weekdays.map((name, index) => '<span' + (days[index] === boardToday ? ' class="is-today"' : '') + '>'
       + name + '</span>').join('') + '</div><span>Active</span><span>Spark</span></div>';
@@ -131,7 +143,7 @@ function weeklyRace(details, members, boardToday, userId, rivalId, offline, ui) 
     '<span>' + dayMark(key, null, false, ui) + ' ' + marks[key].label + '</span>').join('') + '</div>';
   const footer = '<p class="circle-race-foot">One point per day with at least one habit. ' + (offline ? 'Offline · Showing the last marks loaded.' : '')
     + (offline && timeZone ? ' ' : '') + (timeZone ? 'Week resets Monday · ' + escape(timeZone) + ' time' : '') + '</p>';
-  return pace + '<div class="circle-race">' + axis + '<ol class="circle-race-rows" role="list" aria-label="Circle standings">'
+  return pace + sharedProgress + '<div class="circle-race">' + axis + '<ol class="circle-race-rows" role="list" aria-label="Circle standings">'
     + rows + '</ol></div>' + legend + footer;
 }
 
