@@ -356,3 +356,15 @@ button.heatmap-cell:hover { border-color: #456538; box-shadow: 0 0 0 1px #456538
 @keyframes mark-burst{0%{opacity:0;transform:translate(0,0) rotate(0)}25%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--rot))}}
 @media(max-width:480px){.award-grid{gap:7px}.award-tile{padding:9px;gap:5px}.award-glyph{font-size:20px;flex-basis:23px}}
 @media(prefers-reduced-motion:reduce){.tap-moment-animate,.mark-moment-animate .mark-moment-card,.mark-moment-particles i{animation:none!important}.mark-moment-particles{display:none}}
+
+/* Tiered day-lock feedback: recovery is gentle, double marks and awards feel special. */
+.mark-moment[data-tier="rest"]{background:#1420136b}
+.mark-moment[data-tier="rest"] .mark-moment-card{background:linear-gradient(155deg,#fcfff7,#e9f4df);border-color:#bfdab1}
+.mark-moment[data-tier="rest"] .mark-moment-symbol{font-size:54px}
+.mark-moment[data-tier="rest"] .mark-moment-particles{display:none}
+.mark-moment[data-tier="single"] .mark-moment-card{background:linear-gradient(155deg,#f9ffee,#e2f4c2)}
+.mark-moment[data-tier="double"] .mark-moment-card{background:linear-gradient(150deg,#fffde5,#dbf68f);border:2px solid #a2bd35;box-shadow:0 30px 120px #0b1b0b8c}
+.mark-moment[data-tier="double"] .mark-moment-symbol{font-size:75px}
+.mark-moment[data-tier="award"] .mark-moment-card{background:linear-gradient(155deg,#fffce9,#e4f4bd);border:2px solid #d3b966;box-shadow:0 30px 120px #0b1b0b99}
+.mark-moment[data-tier="award"] .mark-moment-title{color:#5a4711}
+.mark-moment[data-tier="award"] .mark-moment-symbol{font-size:79px}
