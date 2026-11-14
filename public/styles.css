@@ -380,3 +380,9 @@ button.heatmap-cell:hover { border-color: #456538; box-shadow: 0 0 0 1px #456538
 .tap-moment[data-tier="double"]{background:linear-gradient(115deg,#f8ffd6,#e2fb96);border-color:#82a332;color:#354817;box-shadow:0 12px 30px #5b781a4b}
 .tap-moment[data-tier="double"] .tap-moment-icon{font-size:31px}
 @media(prefers-reduced-motion:reduce){.tap-moment{animation:none!important}}
+
+/* Locked single-habit feedback is distinct from rest, Double marks and awards. */
+.mark-moment[data-tier="gym"] .mark-moment-card{background:linear-gradient(155deg,#faffef,#d2eebc);border-color:#78ae66}
+.mark-moment[data-tier="gym"] .mark-moment-symbol{font-size:65px}
+.mark-moment[data-tier="nutrition"] .mark-moment-card{background:linear-gradient(155deg,#fffdee,#f0f5bc);border-color:#adb965}
+.mark-moment[data-tier="nutrition"] .mark-moment-symbol{font-size:62px}
