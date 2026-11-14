@@ -151,3 +151,47 @@ export function makeDemo(timezone) {
     circle: { circle, members, activity, today, boardToday: today, boardTimezone: timezone, weekDates: week.dates, weekStart: week.dates[0], lastRace },
   };
 }
+
+
+/**
+ * Earned Daymark awards. Only committed/locked check-ins count; drafts do not.
+ * Streaks are consecutive calendar days with a locked check-in, including rest days.
+ * Marks require an actual gym/nutrition check-in; rest days never award training marks.
+ * All achievements are calculated from personal logs, without shared badge storage.
+ */
+export const awardRules = Object.freeze([
+  { id: 'first', name: 'First Mark', icon: '✦', description: 'Lock your first day.' },
+  { id: 'gym1', name: 'Gym Debut', icon: '💪', description: 'Lock your first gym mark.' },
+  { id: 'food1', name: 'Fuel Forward', icon: '🥗', description: 'Lock your first nutrition mark.' },
+  { id: 'double1', name: 'Double Mark', icon: '⚡', description: 'Lock gym and nutrition on the same day.' },
+  { id: 'rest1', name: 'Recovery Counts', icon: '🌿', description: 'Lock your first rest day.' },
+  { id: 'week', name: 'Seven-Day Rhythm', icon: '🔥', description: 'Lock seven consecutive days.' },
+  { id: 'fortnight', name: 'Fortnight Focus', icon: '🌟', description: 'Lock 14 consecutive days.' },
+  { id: 'month', name: '30-Day Commitment', icon: '🏆', description: 'Lock 30 consecutive days.' },
+  { id: 'gym10', name: 'Ten Gym Days', icon: '🏋️', description: 'Lock ten gym days.' },
+  { id: 'food10', name: 'Ten Nutrition Days', icon: '🍎', description: 'Lock ten nutrition days.' },
+  { id: 'double10', name: 'Double Digits', icon: '🥇', description: 'Lock ten Double mark days.' },
+]);
+
+export function awardsFor(checkins, today) {
+  const earned = {};
+  let gym = 0, nutrition = 0, doubles = 0, run = 0, previous = '';
+  for (const day of Object.keys(checkins || {}).filter(day => day <= today).sort()) {
+    const log = checkins[day];
+    if (!log || typeof log !== 'object') continue;
+    if (!earned.first) earned.first = day;
+    if (log.gym && ++gym === 1) earned.gym1 = day;
+    if (log.nutrition && ++nutrition === 1) earned.food1 = day;
+    if (log.gym && log.nutrition && ++doubles === 1) earned.double1 = day;
+    if (!log.gym && !log.nutrition && !earned.rest1) earned.rest1 = day;
+    if (gym === 10 && !earned.gym10) earned.gym10 = day;
+    if (nutrition === 10 && !earned.food10) earned.food10 = day;
+    if (doubles === 10 && !earned.double10) earned.double10 = day;
+    run = previous && offsetDay(previous, 1) === day ? run + 1 : 1;
+    if (run === 7 && !earned.week) earned.week = day;
+    if (run === 14 && !earned.fortnight) earned.fortnight = day;
+    if (run === 30 && !earned.month) earned.month = day;
+    previous = day;
+  }
+  return awardRules.map(rule => ({ ...rule, earnedOn: earned[rule.id] || null }));
+}
